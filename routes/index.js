@@ -36,7 +36,7 @@ router.get('/map', function(req, res) {
 
     query.on("end", function(result) {
         res.render('map', {
-            title: 'Catálogo y visualizador del PNT',
+            title: 'Visualizador del PNT',
             lat: 36.66,
             lng: -6.95,
             satellites: (result.rows)
