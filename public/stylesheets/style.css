@@ -1,0 +1,146 @@
+body {
+	margin:0;
+	padding:0px;
+	font:14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+	color:#00B7FF;
+}
+/*
+#map {
+	position:absolute;
+	top:0;
+	bottom:0;
+	width:100%;
+}
+*/
+#leg, #leg_title {
+	position:absolute;
+	top:50px;
+	right:10px;
+	width:100px;
+	padding:10px;
+	background:rgba(34,34,34,1);
+	color:#999;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size:12px;
+	line-height:18px;
+	border-radius:3px;
+	max-height:80%;
+	overflow:auto;
+}
+
+#leg_title {
+	top:10px;
+}
+
+#leg_items {
+	position:relative;
+	margin-left:5px;
+	top:-1px
+}
+
+#botonBorra{
+	top: .5em;
+	left: 2em;
+	position: absolute;
+    padding: 2px;
+	z-index:1;
+}
+
+#infoDibujo{
+	top: .5em;
+	left: 11em;
+	position: absolute;
+    padding: 2px;
+	z-index:1;	
+}
+
+#bboxes{
+	top: 3.5em;
+	left: 4em;
+	position: absolute;
+	z-index:1;
+}
+
+.intro{
+	text-align:center;
+	background-color: #373b50;
+	color: rgba(255,255,255,.84);
+	//border: 1px solid transparent;
+	position: relative;
+    min-height: 50px;
+	box-sizing: border-box;
+	height:57px;
+    display: block;
+    font-size: 24px;
+    line-height: 55px;
+    text-align: center;
+    white-space: nowrap;
+    width: 100%;
+    text-align: center;
+}
+
+.toolbar-image {
+    height: 55px;
+}
+
+.toolbar-logo {
+    float: left;
+    padding-left: 5px;
+}
+/*
+.row {
+    margin-right: 0;
+    margin-left: 0;
+}
+*/
+img {
+    vertical-align: middle;
+}
+
+.ol-zoom{
+	visibility:hidden;
+	
+}
+
+#barra {
+	width: 40%;
+    top: 67px;
+    height: 100%;
+    background-color: white;
+    box-shadow: 3px 5px 19px 0px rgba(49, 50, 50, 0.62);
+    background-color: white;
+	left: 20px;
+    z-index: 10;
+	position: fixed;
+	height: 32px;
+	box-sizing: border-box;
+	display: block;
+}
+
+.toggler {
+	//min-width:33%;
+    //width: 500px;
+    height: 100%;
+  }
+  #button {
+    padding: .5em 1em;
+    text-decoration: none;
+  }
+  #effect {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    //padding: 0.4em;
+  }
+  #effect h3 {
+    margin: 0;
+    padding: 0.4em;
+    text-align: center;
+  }
+  
+  .input-group{
+	  position:right;
+  }

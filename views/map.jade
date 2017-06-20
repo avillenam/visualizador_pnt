@@ -1,0 +1,535 @@
+extends layout 
+block content
+	header.intro#toolbar
+		div.container-fluid.col-md-12
+			div.col-md-8
+				span(ng-repeat="logo in logos" class="ng-scope") 
+					a(href="http://www.ign.es" target="_blank") 
+						span.toolbar-logo(title="http://www.ign.es")
+							img.toolbar-image(src="images/Logo_IGN.png")
+				span(ng-repeat="logo in logos" class="ng-scope") 
+					a(href="http://pnt.ign.es/" target="_blank") 
+						span.toolbar-logo(title="http://pnt.ign.es/")
+							img.toolbar-image(src="images/Cabecera_catalogo.jpg")								
+			div.col-md-4.hidden-xs(style="padding:0px;") Catálogo y visualizador del PNT
+	div
+		div.row
+			div.col-sm-12
+				//- div#sidebar.sidebar.sidebar-left.collapsed
+				#map
+				div(style="position: absolute; left: 2em; top: 40px;width:33%")
+					div.col-md-12
+						button.col-md-1#botonmenu.btn.btn-default(type="button")
+							span.glyphicon.glyphicon-menu-hamburger(aria-hidden="true")
+						button.col-md-2#botonbusqueda.btn.btn-default(type="button" style="visibility:visible")
+							span.glyphicon.glyphicon-search(aria-hidden="true")
+						button.col-md-2#botonbborra.btn.btn-danger(type="button" style="visibility:visible" onclick="borraPantalla()")
+							span.glyphicon.glyphicon-erase(aria-hidden="true")
+					div.col-md-12.toggler
+						div#panelbusqueda.effect.panel.panel-info(style="display:none")
+							div.panel-heading
+								span Búsqueda avanzada
+								span(style="position:absolute; right:2em;")
+									button.btn-xs.btn.btn-warning(type='button' onclick="limpiaFiltros()" title="limpiar filtros de búsqueda") Limpiar campos
+							div.panel-body#accordion
+								div.group
+									h3 Fecha de captura
+									div.panel-body
+										div.form-group
+											div.advanced-calendar-label 
+												label Desde:
+												p.input-group
+													input#from.datepicker.form-control(type="text" placeholder="fecha inicial")
+											div.advanced-calendar-label 
+												label Hasta:
+												p.input-group
+													input#to.datepicker.form-control(type="text" placeholder="fecha final")
+								div.group
+									h3 Localización geográfica
+									div.panel-body 
+										div.col-md-12 
+											label Selección de imágenes
+										div.panel.panel-info.col-md-12 Introduce las coordenadas de la selección en EPSG:3857:
+											div.form-group
+												div.row
+													div.col-md-6
+														label Longitud Mínima:
+														input.form-control#xmin(type="text" name="xmin" placeholder="Longitud mínima")
+													div.col-md-6
+														label Latitud Mínima:
+														input.form-control#ymin(type="text" name="ymin" placeholder="Latitud mínima")
+												br
+												div.row
+													div.col-md-6
+														label Longitud Máxima:
+														input.form-control#xmax(type="text" name="xmax" placeholder="Longitud máxima")
+													div.col-md-6
+														label Latitud Máxima:
+														input.form-control#ymax(type="text" name="ymax" placeholder="Latitud máxima")
+												br
+												div.row
+													div.col-md-12
+														button.col-md-4.col-md-offset-1.btn.btn-warning#dibujabbox Dibujar BBOX
+														button.col-md-4.col-md-offset-2.btn.btn-danger#borrabbox Borrar BBOX
+										div.panel.panel-info.col-md-12
+											div.row 
+												div.col-md-12 
+													label Dibujar un BBOX arrastrando ratón + Ctrl
+										div.panel.panel-info.col-md-12
+											div.row 
+												div.col-md-12 
+													label Arrastrar un fichero GPX, GeoJSON, IGC, KML, o TopoJSON en el mapa
+												div.form-group.col-md-12
+													label(for="exampleInputFile") Fichero de entrada
+													input(type="file" id="exampleInputFile")
+													p.help-block texto de ayuda aquí.
+								div.group
+									h3 Setélite-Sensor
+									div.panel-body(style="height:auto")
+										div#sats
+											each sat, i in satellites
+												input.selectedsatellite(type='checkbox' id='#{sat.satellite}')
+												span#sat_items #{sat.satellite}
+												br
+					div.col-md-12.toggler
+						div#panelresultados.panel.panel-info(style="display:none")
+							div.list-group
+								a(href="#" class="list-group-item active")
+									h4#numresultados.list-group-item-heading Listado de resultados
+									//p.list-group-item-text ...
+								div#listaderesultados
+									//- a(href="#" class="list-group-item")
+									//- 	h4.list-group-item-heading identifier
+									//- 	p.list-group-item-text Download URL: xxxxxxxxxxx;
+									//- 	p.list-group-item-text Misión:  xxxx; Sensing Date: xxxxxxx;
+									
+
+				//div.alert.alert-danger.toggler#popup(style="height:50px;position:absolute;left:50%;top:30%;display:none") ¡Crea un BBOX!
+	
+
+	script(type='text/javascript').
+		var extension;
+		var osm = new ol.layer.Tile({source: new ol.source.OSM()});
+		var projection = ol.proj.get('EPSG:3857');
+		var projectionExtent = projection.getExtent();
+		var size = ol.extent.getWidth(projectionExtent) / 256;
+		var resolutions = new Array(14);
+		var matrixIds = new Array(14);
+		for (var z = 0; z < 14; ++z) {
+		// generate resolutions and matrixIds arrays for this WMTS
+		resolutions[z] = size / Math.pow(2, z);
+		matrixIds[z] = z;
+		};
+
+		//- $( "#popup" ).hide();
+
+		var layerBbox;	//Variable global donde se van a almacenar 
+		var entidadLayerBbox = []; //variable que almacena el BBOX dibujado como ol.Feature
+		var source;
+
+		var listadoResultados = [];
+		
+		//variable que almacena un Array con los satélites seleccionados
+		var satelites = [];
+		
+		var tileGrid = new ol.tilegrid.WMTS({
+			origin: ol.extent.getTopLeft(projectionExtent),
+			resolutions: resolutions,
+			matrixIds: matrixIds
+		});
+		var attribution = new ol.Attribution({
+			html: 'Teselas de PNOA cedido por © Instituto Geográfico Nacional de España'
+		});
+
+		var pnoaWmts = 	new ol.layer.Tile({
+			opacity: 0.7,
+			//extent: projectionExtent,
+			source: new ol.source.WMTS({
+			attributions: [attribution],
+			url: 'http://www.ign.es/wmts/pnoa-ma',
+			layer: 'OI.OrthoimageCoverage',
+			matrixSet: 'EPSG:3857',
+			format: 'image/jpeg',
+			projection: projection,
+			tileGrid: tileGrid,
+			style: 'default',
+			wrapX: true
+		})
+		});
+
+		var map = new ol.Map({
+			layers: [pnoaWmts],
+			target: 'map',
+			controls: ol.control.defaults().extend([
+				new ol.control.ScaleLine({className: 'ol-scale-line', target: document.getElementById('scale-line')})
+			]),
+			view: new ol.View({
+				center: ol.proj.transform([#{lng}, #{lat}], 'EPSG:4326', 'EPSG:3857'), zoom: 6
+			})
+		});
+
+
+		map.on('click', function(evt) {
+			displayFeatureInfo(evt.pixel);
+		});
+
+		var displayFeatureInfo = function(pixel) {
+			var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+				return feature;
+			});
+			if (feature) {
+				alert('id_imagen: '+ feature.get('id_image')+'\nfecha_captura: ' +feature.get('fecha_captura'));
+			} 
+		};
+		
+
+		//Dibujo de BBOX
+		var dragBox = new ol.interaction.DragBox({
+		  condition: ol.events.condition.platformModifierKeyOnly
+		});
+
+		map.addInteraction(dragBox);
+		var bboxGlobal = []; //almacena geometría del BBOX de busqueda de imágenes
+
+
+		var estiloPolygon = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+			  width: 1,
+			  color: [255, 0, 0, 1]
+			}),
+			fill: new ol.style.Fill({
+			  color: [0, 0, 255, 0.4]
+			})
+		  });
+
+		var capaBbox = new ol.layer.Vector({
+			source: new ol.source.Vector(),
+			style:estiloPolygon
+		});
+
+		//capaBbox.setZIndex(1);
+
+		map.addLayer(capaBbox);
+
+		dragBox.on('boxend', function(e) {
+			bboxGlobal = dragBox.getGeometry(); //almacena la geometría del BBOX dibujado mediante la interacción dragBox
+
+			dibujaBbox();
+
+			//var extent = dragBox.getGeometry().getExtent();
+
+
+			//- dibujaBbox(extent);
+			//- dibujaActualizado();
+
+			//aqui tiene que ir la consulta a la BD preguntanto por las entidades que solapan con el BBOX dibujados
+			//var extension = map.getLayers().getArray()[1].getSource().getFeatures()[0].getGeometry().getExtent();
+			//extension.push(3857);
+			//extension = temp[0]+','+temp[1]+','+temp[2]+','+temp[3]+',3857';
+
+			//addFoot(extension); //funcion que lanza la consulta y dibuja los resultados de las imagenes encontradas-->funcion a cambiar para que se realice la consulta al pulsar el botón de búsqueda
+
+		});
+
+		function dibujaBbox(){
+			capaBbox.setSource(new ol.source.Vector());
+			capaBbox.getSource().addFeature(new ol.Feature({geometry: bboxGlobal}));
+
+		}
+		
+		
+		//Función que elimina todos los elementos dibujados en pantalla
+		function borraPantalla(){
+			capaBbox.setSource(new ol.source.Vector());//elimina la fuente de la capa 'capaBbox'
+			//- arrayFeatures = [];
+			//- entidadLayerBbox=[];
+			extension = null;
+			var numCapas = map.getLayers().getArray().length;  //obtiene el numero total de capas
+			
+			
+
+			for(var i=numCapas; i > 1 ; i--){
+				map.getLayers().getArray().splice(i,1);
+			}
+		if(bboxGlobal.length!=0){
+			capaBbox.getSource().addFeature(new ol.Feature({geometry: bboxGlobal}));
+		};
+
+		ocultaPanelResultados();
+		
+
+		}
+
+
+		function borraBox(){
+			capaBbox.setSource(new ol.source.Vector());//elimina la fuente de la capa 'capaBbox'
+			//- arrayFeatures = [];
+			//- entidadLayerBbox=[];
+			extension = [];
+			bboxGlobal=[];
+
+
+			//- $("#panelresultados").attr('style','display: none;');
+
+		}
+		
+		// ejecuta el efecto 'slide'
+		function conmutaPanelBusqueda() {
+			// ejeutar el efecto
+			$( "#panelbusqueda" ).toggle( 'drop', {}, 500 );
+		};
+		// ejecuta el efecto 'slide'
+		function muestraPanelResultados() {
+			// ejeutar el efecto
+			//- if($("#panelresultados").attr('style')=='display:none;'){
+			$( "#panelresultados" ).show( 'drop', {}, 500 );
+		};
+	
+		function ocultaPanelResultados() {
+			// ejeutar el efecto
+			//- if($("#panelresultados").attr('style')=='display:none;'){
+			$( "#panelresultados" ).hide( 'drop', {}, 500 );
+		};
+
+		// establece el efecto a partir del valor seleccionado del menu
+		$( "#botonmenu" ).click(function() {
+		
+			// ejeutar el efecto
+			conmutaPanelBusqueda();
+			//- $("#botonbusqueda").attr("style","display:block");
+		});
+		
+		//Lanza la peticion de imagenes
+		$( "#botonbusqueda" ).click(function() {
+			borraPantalla();
+
+			if(bboxGlobal.length!=0)
+			{
+				//realiza la busqueda de imagenes en la BD mediante peticion http
+				extension = bboxGlobal.getExtent();
+				//- extension.push(3857);
+				lanzaPeticionBusqueda(extension);
+
+				
+				
+				//Tiempo de espera de 2 segundos para darle tiempo a que retorne los resultados de la búsqueda
+				setTimeout(function(){ 
+						listadoResultados = map.getLayers().getArray()[2].getSource().getFeatures();
+						
+						muestraPanelResultados();
+
+						var myItems = [], $listaderesultados = $('#listaderesultados');
+						 
+						for (var i=0; i<listadoResultados.length; i++) {
+						    myItems.push("<a href='#' class='list-group-item'><h4 class='list-group-item-heading'>"+listadoResultados[i].get('fileidentifier')+"</h4><p class='list-group-item-text'></p><p class='list-group-item-text'><em>URL de descarga:</em> "+listadoResultados[i].get('pathtofile')+" ; <em>Fecha de captura:</em> "+listadoResultados[i].get('fecha_captura')+"</p></a>");
+						}
+						 
+						$listaderesultados.append(myItems.join(''));		
+						$("#numresultados").text("Listado de "+listadoResultados.length+ " resultados");		
+
+
+
+						
+					}, 2000);				
+			}else{
+				//- $("#popup").attr("style","position:absolute;left:50%;top:20%;display:block;display:block");
+				$( "#popup" ).show( 'drop', {}, 500, callback );
+				    function callback() {
+				      setTimeout(function() {
+				        $( "#popup:visible" ).attr( "style", "display:none").fadeOut();
+				      }, 2000 );
+				    };				
+
+				//- setTimeout(function(){$("#popup:visible").removeAttr( "style" ).fadeOut();},2000);
+				//- alert("Crea un BBOX");
+			}
+
+
+			
+
+			//- $("#botonbusqueda").attr("style","visibility:visible");
+
+			//- alert('hacer la peticion a la BD mediante http');
+		});		
+		
+
+		// elemento JqueryUI que muestra un calendario
+		//- $( ".datepicker" ).datepicker({
+		//- 	onClose: function( selectedDate ) {
+		//- 		peticion_http = new XMLHttpRequest();
+		//- 		peticion_http.open('GET', 'http://localhost:3000/time/20131001/20140101', true);
+		//- 		peticion_http.send(null);
+		//- 	}
+		//- });
+		
+		// elemento JqueryUI de acordeon
+		$( "#accordion" )
+			.accordion({
+				header: "> div > h3",
+				heightStyle: "content",
+				collapsible: true
+			})
+			.sortable({
+				axis: "y",
+				handle: "h3",
+				stop: function( event, ui ) {
+				// IE doesn't register the blur when sorting
+				// so trigger focusout handlers to remove .ui-state-focus
+				ui.item.children( "h3" ).triggerHandler( "focusout" );
+		
+				// Refresh accordion to handle new order
+				$( this ).accordion( "refresh" );
+				}
+			});
+
+		//interaccion con el calendario
+		//Establece configuración común para los dos calendarios
+		var dateFormat = "yy/mm/dd";
+		$(".datepicker").datepicker({
+			firstDay:1,
+			dateFormat: "yy/mm/dd",
+			dayNamesMin: [ "DO", "LU", "MA", "MI", "JU", "VI", "SA"],
+			monthNames: [ "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" ],
+			onClose:lanzaPeticionTime,
+			changeYear: true});
+		
+		//Establede el datepicker para el elemento #from y hace que cuando se seleccione una fecha se establezca la fecha mínima para #to
+		$( "#from" ).datepicker().on( "change", function() {
+				$("#to").datepicker( "option", "minDate", getDate( this ) );
+			});
+
+		//Establede el datepicker para el elemento #to y hace que cuando se seleccione una fecha se establezca la fecha máxima para #from	
+		$( "#to" ).datepicker().on( "change", function() {
+				$("#from").datepicker( "option", "maxDate", getDate( this ) );
+			});		
+
+
+		function getDate( element ) {
+			var date;
+			try {
+				date = $.datepicker.parseDate( dateFormat, element.value);
+			} catch( error ) {
+				date = null;
+			}
+
+			return date;
+		}
+		
+		function lanzaPeticionTime(){
+			var desde = $("#from").val().split("/").join("")
+			var hasta = $("#to").val().split("/").join("")
+			if((desde !="" )&&(hasta != ""))
+			{
+				peticion_http = new XMLHttpRequest();
+				peticion_http.open('GET', 'http://localhost:3000/time/'+desde+'/'+hasta, true);
+				peticion_http.send(null);
+			}
+		}
+
+		//Funcion para añadir una capa con las huellas de las imagenes que solapan con el BBOX dibujados
+		function lanzaPeticionBusqueda(extension) {
+			var layer = [];
+			var peticionGet = "";
+			listadoResultados = [];
+
+			if(satelites!=""){
+				var stringSatelites = array2String(satelites);
+				//peticiones GET para establecer los ids de los satelites
+				peticion_http = new XMLHttpRequest();
+				peticion_http.open('GET', 'http://localhost:3000/satellites/'+ stringSatelites, true);
+				peticion_http.send(null);
+
+
+				peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857"+"?sats="+stringSatelites;
+			}else{
+				peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857";
+			};
+			
+			//- peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857";
+			layer = lanzaPeticionBusqueda.cache[extension];
+
+				layer = new ol.layer.Vector({
+					source: new ol.source.Vector({
+						url: peticionGet,//aquí hace la petición GET a 'index.js' que, a su vez, realiza la peticion a la BD.
+						format: new ol.format.GeoJSON()
+					}),
+					name: extension,
+					visible: true
+				});
+				lanzaPeticionBusqueda.cache[extension] = layer;
+				setTimeout(function(){ 
+					map.addLayer(layer) ;
+				}, 1000);
+				//- map.addLayer(layer);
+				map.getLayers().getArray()[1].setZIndex(1); //Pone por encima la capa del BBOX dibujado
+				
+		}
+		lanzaPeticionBusqueda.cache = {};
+
+		function limpiaFiltros(){
+			$("#from").val("");
+			$("#to").val("");
+
+			var ahora = new Date();
+			var hasta = '' + ahora.getFullYear() + (ahora.getMonth() + 1) + ahora.getDate();
+			var desde='20050101';
+			peticion_http = new XMLHttpRequest();
+			peticion_http.open('GET', 'http://localhost:3000/time/'+desde+'/'+hasta, true);
+			peticion_http.send(null);
+
+			$("#xmin").val("");
+			$("#ymin").val("");
+			$("#xmax").val("");
+			$("#ymax").val("");
+			$('input').prop('checked', false);
+			satelites=[];
+		}
+
+		$("#dibujabbox").click(function() {
+			//dibuja un bbox con la geometría dada
+			var xmin = parseFloat($("#xmin").val());
+			var ymin = parseFloat($("#ymin").val());
+			var xmax = parseFloat($("#xmax").val());
+			var ymax = parseFloat($("#ymax").val());
+			if(xmin!=""&&ymin!=""&&xmax!=""&&ymax!=""){
+				bboxGlobal = ol.geom.Polygon.fromExtent(ol.proj.transformExtent([xmin, ymin, xmax, ymax],'EPSG:4326', 'EPSG:3857'));
+				capaBbox.setSource(new ol.source.Vector());
+				capaBbox.getSource().addFeature(new ol.Feature({geometry: bboxGlobal}));
+			}
+		});
+		
+
+		$("#borrabbox").click(function() {
+			borraBox();
+		});
+
+		$(".selectedsatellite").on( 'change', function() {
+			if( $(this).is(':checked') ) {
+				// Hacer algo si el checkbox ha sido seleccionado
+				var id = $(this).prop('id');
+				satelites.push(id);
+
+				//- var peticion_http = new XMLHttpRequest();
+				//- peticion_http.open('GET', 'http://localhost:3000/satellites?id='+ id, true);
+				//- console.log(peticion_http.responseText);
+				//- peticion_http.send(null);
+				
+				//- alert("El checkbox con valor " + $(this).prop('id') + " ha sido seleccionado");
+			} else {
+				// Hacer algo si el checkbox ha sido deseleccionado
+				satelites.splice(satelites.indexOf($(this).prop('id')),1)
+				//- alert("El checkbox con valor " + $(this).prop('id') + " ha sido deseleccionado");
+			}
+		});
+		//- $( "input" ).change(function() {
+		//- 	satelites.pop($(this).attr('id'));
+
+		//- });
+
+		function array2String(satelites){
+			return "(\'"+satelites.join().replace(/,/g,"\',\'")+"\')";
+		}
+
+		$( "document" ).on( "click", function() {
+		      $( "#popup" ).hide( "fade", {}, 500);
+		});
