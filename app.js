@@ -23,6 +23,11 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public'))); //http://expressjs.com/es/starter/static-files.html para mas informacion
+// app.use('/static',express.static(path.join(__dirname, 'public/images'))); //http://expressjs.com/es/starter/static-files.html para mas informacion
+// app.use(express.static(path.join(__dirname,'/home/antonio/Publico/'))); // Probar que encuentra thunmbnail -->  http://10.13.86.11:3000/var/PNT/LANDSAT8_previews/199/LC81990322015350LGN00_thumbnail.jpeg
+app.use(express.static('/home/antonio/Publico/')); // http://10.13.86.11:3000/var/PNT/LANDSAT8_previews/199/LC81990322015350LGN00_thumbnail.jpeg
+// app.use('/previews', express.static(path.join(__dirname,'/home/antonio/Documentos/imagenes/'))); 
+// app.use('/previews',express.static('/home/antonio/Documentos/imagenes/')); 
 
 app.use('/', routes);
 app.use('/users', users);
