@@ -1,125 +1,131 @@
 extends layout 
 block content
-	header.intro#toolbar
-		div.container-fluid.col-md-12
-			div.col-md-8
-				span(ng-repeat="logo in logos" class="ng-scope") 
-					a(href="http://www.ign.es" target="_blank") 
-						span.toolbar-logo(title="http://www.ign.es")
-							img.toolbar-image(src="images/Logo_IGN.png")
-				span(ng-repeat="logo in logos" class="ng-scope") 
-					a(href="http://pnt.ign.es/" target="_blank") 
-						span.toolbar-logo(title="http://pnt.ign.es/")
-							img.toolbar-image(src="images/Cabecera_catalogo.jpg")								
-			div.col-md-4.hidden-xs(style="padding:0px;") Catálogo y visualizador del PNT
-	div
-		div.row
-			div.col-sm-12
-				//- div#sidebar.sidebar.sidebar-left.collapsed
-				#map
-				div(style="position: absolute; left: 2em; top: 40px;width:33%")
-					div.col-md-12
-						button.col-md-1#botonmenu.btn.btn-default(type="button")
-							span.glyphicon.glyphicon-menu-hamburger(aria-hidden="true")
-						button.col-md-2#botonbusqueda.btn.btn-default(type="button" style="visibility:visible")
-							span.glyphicon.glyphicon-search(aria-hidden="true")
-						button.col-md-2#botonbborra.btn.btn-danger(type="button" style="visibility:visible" onclick="borraPantalla()")
-							span.glyphicon.glyphicon-erase(aria-hidden="true")
-					div.col-md-12.toggler
-						div#panelbusqueda.effect.panel.panel-info(style="display:none")
-							div.panel-heading
-								span Búsqueda avanzada
-								span(style="position:absolute; right:2em;")
-									button.btn-xs.btn.btn-warning(type='button' onclick="limpiaFiltros()" title="limpiar filtros de búsqueda") Limpiar campos
-							div.panel-body#accordion
-								div.group
-									h3 Fecha de captura
-									div.panel-body
-										div.form-group
-											div.advanced-calendar-label 
-												label Desde:
-												p.input-group
-													input#from.datepicker.form-control(type="text" placeholder="fecha inicial")
-											div.advanced-calendar-label 
-												label Hasta:
-												p.input-group
-													input#to.datepicker.form-control(type="text" placeholder="fecha final")
-								div.group
-									h3 Localización geográfica
-									div.panel-body 
-										div.col-md-12 
-											label Selección de imágenes
-										div.panel.panel-info.col-md-12 Introduce las coordenadas de la selección en EPSG:3857:
-											div.form-group
-												div.row
-													div.col-md-6
-														label Longitud Mínima:
-														input.form-control#xmin(type="text" name="xmin" placeholder="Longitud mínima")
-													div.col-md-6
-														label Latitud Mínima:
-														input.form-control#ymin(type="text" name="ymin" placeholder="Latitud mínima")
-												br
-												div.row
-													div.col-md-6
-														label Longitud Máxima:
-														input.form-control#xmax(type="text" name="xmax" placeholder="Longitud máxima")
-													div.col-md-6
-														label Latitud Máxima:
-														input.form-control#ymax(type="text" name="ymax" placeholder="Latitud máxima")
-												br
-												div.row
-													div.col-md-12
-														button.col-md-4.col-md-offset-1.btn.btn-warning#dibujabbox Dibujar BBOX
-														button.col-md-4.col-md-offset-2.btn.btn-danger#borrabbox Borrar BBOX
-										div.panel.panel-info.col-md-12
-											div.row 
-												div.col-md-12 
-													label Dibujar un BBOX arrastrando ratón + Ctrl
-										div.panel.panel-info.col-md-12
-											div.row 
-												div.col-md-12 
-													label Arrastrar un fichero GPX, GeoJSON, IGC, KML, o TopoJSON en el mapa
-												div.form-group.col-md-12
-													label(for="exampleInputFile") Fichero de entrada
-													input(type="file" id="exampleInputFile")
-													p.help-block texto de ayuda aquí.
-								div.group
-									h3 Setélite-Sensor
-									div.panel-body(style="height:auto")
-										div#sats
-											each sat, i in satellites
-												input.selectedsatellite(type='checkbox' id='#{sat.satellite}')
-												span#sat_items #{sat.satellite}
-												br
-					div.col-md-12.toggler
-						div#panelresultados.panel.panel-info(style="display:none")
-							div.list-group
-								a(href="#" class="list-group-item active")
-									h4#numresultados.list-group-item-heading Listado de resultados
-									//p.list-group-item-text ...
-								div#listaderesultados
-									//- a(href="#" class="list-group-item")
-									//- 	h4.list-group-item-heading identifier
-									//- 	p.list-group-item-text Download URL: xxxxxxxxxxx;
-									//- 	p.list-group-item-text Misión:  xxxx; Sensing Date: xxxxxxx;
-									
-
-				//div.alert.alert-danger.toggler#popup(style="height:50px;position:absolute;left:50%;top:30%;display:none") ¡Crea un BBOX!
-	
-
+	div#map.map
+	//- img.section.damn#banner(src="images/Cabecera_catalogo.jpg")
+	div#badgeZoomLevel
+		div#badgeZoomLevelText 6
+	//button#botonbusquedasentinel.btn.btn-default(type="button" style="visibility:visible; position: absolute; right: 5.5em; top: 5em;width:150px")
+	//	span(aria-hidden="true") Busqueda Sentinel
+	div#toolbar.intro.container-fluid.col-md-12
+		div.col-md-8
+			span(ng-repeat="logo in logos" class="ng-scope") 
+				a(href="http://www.ign.es" target="_blank") 
+					span.toolbar-logo(title="http://www.ign.es")
+						img.toolbar-image(src="images/Logo_IGN.png")
+			span(ng-repeat="logo in logos" class="ng-scope") 
+				a(href="http://pnt.ign.es/" target="_blank") 
+					span.toolbar-logo(title="http://pnt.ign.es/")
+						img.toolbar-image(src="images/Cabecera_catalogo.jpg")
+		div.col-md-4.hidden-xs(style="padding:0px;") Catálogo y visualizador del PNT
+	div.toolbar.statusbar.initially-hidden barra de estado
+	div.toolbar.bottom-toolbar
+		div
+			a(href="http://pnt.ign.es/" target="_blank") Acceso al geoportal del PNT
+			//- img(src="images/icon.png")
+	div(style="position: absolute; left: 2em; top: 70px;width:33%")
+		div.col-md-12
+			button.col-md-1#botonmenu.btn.btn-default(type="button")
+				span.glyphicon.glyphicon-menu-hamburger(aria-hidden="true")
+			button.col-md-2#botonbusqueda.btn.btn-success(type="button" style="visibility:visible")
+				span.glyphicon.glyphicon-search(aria-hidden="true")
+			button.col-md-4#botonbusquedasentinel.btn.btn-default(type="button" style="visibility:visible")
+				span(aria-hidden="true") Busqueda Sentinel
+			button.col-md-2.col-md-offset-1#botonbborra.btn.btn-danger(type="button" style="visibility:visible" onclick="borraPantalla()")
+				span.glyphicon.glyphicon-erase(aria-hidden="true")
+		div.col-md-12.toggler
+			div#panelbusqueda.effect.panel.panel-info(style="display:none")
+				div.panel-heading
+					span Búsqueda avanzada
+					//- span(style="position:absolute; right:30px; top:7px;")
+						button.btn-xs.btn.btn-warning(type='button' onclick="limpiaFiltros()" title="limpiar filtros de búsqueda") Limpiar campos
+				div.panel-body#accordion
+					div.group
+						h3 Fecha de captura
+						div.panel-body
+							div.form-group
+								div.advanced-calendar-label 
+									label Desde:
+									p.input-group
+										input#from.datepicker.form-control(type="text" placeholder="fecha inicial")
+								div.advanced-calendar-label 
+									label Hasta:
+									p.input-group
+										input#to.datepicker.form-control(type="text" placeholder="fecha final")
+					div.group
+						h3 Localización geográfica
+						div.panel-body 
+							div.col-md-12 
+								label Selección de imágenes
+							div.panel.panel-info.col-md-12 Introduce las coordenadas de la selección en EPSG:3857:
+								div.form-group
+									div.row
+										div.col-md-6
+											label Longitud Mínima:
+											input.form-control#xmin(type="text" name="xmin" placeholder="Longitud mínima")
+										div.col-md-6
+											label Latitud Mínima:
+											input.form-control#ymin(type="text" name="ymin" placeholder="Latitud mínima")
+									br
+									div.row
+										div.col-md-6
+											label Longitud Máxima:
+											input.form-control#xmax(type="text" name="xmax" placeholder="Longitud máxima")
+										div.col-md-6
+											label Latitud Máxima:
+											input.form-control#ymax(type="text" name="ymax" placeholder="Latitud máxima")
+									br
+									div.row
+										div.col-md-12
+											button.col-md-4.col-md-offset-1.btn.btn-warning#dibujabbox Dibujar BBOX
+											button.col-md-4.col-md-offset-2.btn.btn-danger#borrabbox Borrar BBOX
+							div.panel.panel-info.col-md-12
+								div.row 
+									div.col-md-12 
+										label Dibujar un BBOX arrastrando ratón + Ctrl
+							div.panel.panel-info.col-md-12
+								div.row 
+									div.col-md-12 
+										label Arrastrar un fichero GPX, GeoJSON, IGC, KML, o TopoJSON en el mapa
+									div.form-group.col-md-12
+										label(for="exampleInputFile") Fichero de entrada
+										input(type="file" id="exampleInputFile")
+										p.help-block texto de ayuda aquí.
+					div.group#satelite-sensor
+						h3 Setélite-Sensor
+						div.panel-body(style="height:auto")
+							div#sats
+								each sat, i in satellites
+									input.selectedsatellite(type='checkbox' id='#{sat.satellite}')
+									span#sat_items #{sat.satellite}
+									br
+		div.col-md-12.toggler
+			div#panelresultados(style="display:none")
+				div.list-group
+					div#cabeceraresultados.list-group-item.active 
+						h4#numresultados Listado de resultados
+						button.btn.btn-link.btn-sm(type="button" onclick="cierraPanel()" title="cierra panel" style="position:absolute; right:10px; top:15px;")
+							span.glyphicon.glyphicon-remove
+					div#listaderesultados
+		div#show-list-button(style="top: 109px; opacity: 1; display: hidden;" class="fab-map pan glyphicon glyphicon-list-alt dhus-button" onclick="muestraPanelResultados()" title="Show product list" role="button" tabindex="0")
 	script(type='text/javascript').
-		var extension;
+		//- $(document).ready(function() {		
+		var extension=[];
 		var osm = new ol.layer.Tile({source: new ol.source.OSM()});
 		var projection = ol.proj.get('EPSG:3857');
 		var projectionExtent = projection.getExtent();
 		var size = ol.extent.getWidth(projectionExtent) / 256;
 		var resolutions = new Array(14);
 		var matrixIds = new Array(14);
+		var numResultados = 0;
 		for (var z = 0; z < 14; ++z) {
 		// generate resolutions and matrixIds arrays for this WMTS
 		resolutions[z] = size / Math.pow(2, z);
 		matrixIds[z] = z;
 		};
+
+		// Fechas
+		var desde;
+		var hasta;
 
 		//- $( "#popup" ).hide();
 
@@ -169,52 +175,176 @@ block content
 		});
 
 
-		map.on('click', function(evt) {
-			displayFeatureInfo(evt.pixel);
-		});
 
-		var displayFeatureInfo = function(pixel) {
-			var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-				return feature;
-			});
-			if (feature) {
-				alert('id_imagen: '+ feature.get('id_image')+'\nfecha_captura: ' +feature.get('fecha_captura'));
-			} 
-		};
-		
+
+
+		proj4.defs('EPSG:32630','+proj=utm +zone=30 +ellps=WGS84 +datum=WGS84 +units=m +no_defs');
+		proj4.defs('EPSG:32629','+proj=utm +zone=29 +ellps=WGS84 +datum=WGS84 +units=m +no_defs');
+		//- var imageExtent = [300010.00, 4690230.0, 409770.0, 4800000.0];
+		//var imageExtent = [512930.00, 4085580.0, 524160.0, 4094960.0];  // 'Analucia_3857.tif'
+
+		//- $.getJSON("http://localhost:8080/public/raster/S2A_OPER_MSI_L1C_TL_SGS__20151211T192134_A002451_T27RYL_N02.00_imageExtent.js", function(datos) {
+		//- 	//- console.log(datos);
+		//- 	imageExtent = datos;
+
+		//- 	envelope = [imageExtent.xmin,imageExtent.ymin,imageExtent.xmax,imageExtent.ymax];
+		//- 	imagenRaster = new ol.source.ImageStatic({
+		//- 		//- url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/' +	'British_National_Grid.svg/2000px-British_National_Grid.svg.png',
+		//- 		url: 'http://localhost:8080/public/raster/S2A_OPER_MSI_L1C_TL_SGS__20151211T192134_A002451_T27RYL_N02.00_preview_3857.jpeg',	//Imagen GeoTIFF en 3857 generada con tiles internas con compresión JPEG de 256x256 pixeles.
+		//- 		crossOrigin: '',
+		//- 		projection: 'EPSG:3857',
+		//- 		imageExtent: envelope
+		//- 	});
+		//- 	var layerStatic = new ol.layer.Image({
+		//- 		source: imagenRaster
+		//- 	});
+
+		//- 	map.addLayer(layerStatic);
+		//- });
+
+
+		//- var imageExtent = [-317802.94889, 4427416.67532,-303727.00452,4439186.20968];  //S2A_OPER_MSI_L1C_TL_MTI__20160209T202004_A003309_T27RYL_N02.01_preview.jpeg
+		//- var imageExtent = [-6.3285942, 36.0107703, -5.1388402, 37.0272115];
+		//- imageExtent2 = ol.proj.transformExtent(imageExtent,'EPSG:32630','EPSG:3857');
+		//- extent = ol.proj.transformExtent([199990.0, 3990270, 309750.0, 4100030.0],'EPSG:32630', 'EPSG:3857');
+		//- var extent = [-19, 26, 5, 45];
+
+
+
+
+
+
+
+
+
+
 
 		//Dibujo de BBOX
 		var dragBox = new ol.interaction.DragBox({
-		  condition: ol.events.condition.platformModifierKeyOnly
+			condition: ol.events.condition.platformModifierKeyOnly,
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: [204,0,0,1],
+					lineDash: [6]
+				}),
+				fill: new ol.style.Fill({
+					color: [0, 0, 230, 0.2]
+				})
+			 })
+
 		});
 
-		map.addInteraction(dragBox);
-		var bboxGlobal = []; //almacena geometría del BBOX de busqueda de imágenes
+		//- map.addInteraction(dragBox);
+		map.getInteractions().extend([dragBox]);
+		bboxGlobal = []; //almacena geometría del BBOX de busqueda de imágenes
 
 
+		// Estilio del BBOX una vez se ha dibujado
 		var estiloPolygon = new ol.style.Style({
 			stroke: new ol.style.Stroke({
 			  width: 1,
-			  color: [255, 0, 0, 1]
+			  color: [106, 91, 59, 1]
 			}),
 			fill: new ol.style.Fill({
-			  color: [0, 0, 255, 0.4]
+			  color: [255, 255, 102, 0.6]
 			})
 		  });
 
-		var capaBbox = new ol.layer.Vector({
+		// Estilo para los elementos resultado
+		var resultsStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+			  width: 1,
+			  color: [23, 114, 69, 1]
+			}),
+			fill: new ol.style.Fill({
+			  color: [205, 254, 221, 0.2]
+			})
+		});			
+		
+
+		// Estilo para los elementos al pasar el raton por encima
+		var highlightResultStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+			  width: 2.5,
+			  color: [23, 114, 69, 1]
+			}),
+			fill: new ol.style.Fill({
+			  color: [0, 153, 51, 0.4]
+			}),
+			zIndex: 1
+		});	
+
+		// Estilo para los elementos seleccionados
+		var selectedResultStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+			  color: [0, 230, 0,1],
+			  width: 2.5
+			}),
+			fill: new ol.style.Fill({
+			  color: [217, 255, 102,0.7]
+			}),
+			zIndex: 1
+		});		
+
+
+
+		var capaResultados = new ol.layer.Vector({
+			id:'resultados',
 			source: new ol.source.Vector(),
-			style:estiloPolygon
+			title:"Resultados",
+			visible: true,
+			style: resultsStyle
+		});	  
+
+		var capaBbox = new ol.layer.Vector({
+			id:'bbox',
+			source: new ol.source.Vector(),
+			title:"BBOX",
+			style: estiloPolygon
 		});
 
 		//capaBbox.setZIndex(1);
 
-		map.addLayer(capaBbox);
+		map.addLayer(capaResultados);  // - Capa que almacena los resultados de la busqueda
+
+		map.addLayer(capaBbox);	//- Capa que almacena el BBOX de búsqueda
+
+		
+
+
+
+		//**************************************************************************************
+		// Prueba temporal, borrar
+		//- var vectorSource = new ol.source.Vector({
+		//- 	//- url: 'ejemploEntidades.json',
+		//- 	url: 'http://localhost:3000/pg/-336401.853797/4569530.579595/94261.701964/4733839.968339/3857',
+		//- 	format: new ol.format.GeoJSON(),
+		//- 	projection:'EPSG:3857'
+		//- });
+
+
+		//- var capajson =  new ol.layer.Vector({source: vectorSource});
+
+		//- map.addLayer(capajson);
+
+
+
+		
+
+		//Hasta aqui la prueba temporal
+		//**************************************************************************************
 
 		dragBox.on('boxend', function(e) {
 			bboxGlobal = dragBox.getGeometry(); //almacena la geometría del BBOX dibujado mediante la interacción dragBox
 
-			dibujaBbox();
+			dibujaBbox(bboxGlobal);
+
+			//Captura de las coordenadas del BBOX para insertarlas en 'Localización Geográfica'
+			var extensionGeograficas = ol.proj.transformExtent(bboxGlobal.getExtent(),'EPSG:3857', 'EPSG:4326');
+			$('#xmin').val(extensionGeograficas[0].toFixed(6));
+			$('#ymin').val(extensionGeograficas[1].toFixed(6));
+			$('#xmax').val(extensionGeograficas[2].toFixed(6));
+			$('#ymax').val(extensionGeograficas[3].toFixed(6));
 
 			//var extent = dragBox.getGeometry().getExtent();
 
@@ -231,77 +361,236 @@ block content
 
 		});
 
-		function dibujaBbox(){
+
+		// dibuja Bbox pasandole una geometria en EPSG:4326
+		function dibujaBbox(geometria){
 			capaBbox.setSource(new ol.source.Vector());
-			capaBbox.getSource().addFeature(new ol.Feature({geometry: bboxGlobal}));
+			capaBbox.getSource().addFeature(new ol.Feature({geometry: geometria}));
 
 		}
+
+
+		//Funcion para añadir una capa con las huellas de las imagenes que solapan con el BBOX dibujados
+		lanzaPeticionBusqueda = function (extension) {
+			var layer = [];
+			var peticionGet = "";
+			stringSatelites = [];
+			var format = new ol.format.GeoJSON();
+
+			var vectorSource = new ol.source.Vector;  //inicializa la variable para que no aparezca un error cuando no hay resultados.
+			//listadoResultados = [];
+
+			if(satelites!=""){
+				//- var stringSatelites = array2String(satelites);
+				$.getJSON("http://10.13.86.11:3000/satellites/"+"(\'"+satelites.join().replace(/,/g,"\',\'")+"\')", function(data) {
+					// console.log(data);
+
+					$.each(data, function(i,item){
+						//- console.log(item.id_product + '=>' + item.satellite);
+						stringSatelites.push(item.id_product);
+
+					});
+					reqSatelites = "(\'"+stringSatelites.join().replace(/,/g,"\',\'")+"\')";
+
+					peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857"+"?sats="+reqSatelites;
+					
+					vectorSource = new ol.source.Vector({
+					  //- strategy: ol.loadingstrategy.bbox,
+					  loader: function(extent, resolution, projection) {
+						$.ajax(peticionGet).then(function(response) {
+							var features = format.readFeatures(response,
+							  {featureProjection: 'EPSG:3857'});
+							vectorSource.addFeatures(features);
+						});
+					  }
+					});
+
+					
+					capaResultados.setSource(vectorSource);
+				});
+			}else{
+				peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857";
+
+				vectorSource = new ol.source.Vector({
+				  //- strategy: ol.loadingstrategy.bbox,
+				  loader: function(extent, resolution, projection) {
+					$.ajax(peticionGet).then(function(response) {
+						var features = format.readFeatures(response,
+						  {featureProjection: 'EPSG:3857'});
+						vectorSource.addFeatures(features);
+					});
+				  }
+				});
+				
+				
+				capaResultados.setSource(vectorSource);
+			};
+			
+		};
+		lanzaPeticionBusqueda.cache = {};
+
+		// ejecuta el efecto 'slide'
+		function conmutaPanelBusqueda() {
+			if($('#panelresultados').attr('style')=="display: block;"){
+				cierraPanel();
+			}else{
+
+			}
+
+
+			// ejeutar el efecto
+			$( "#panelbusqueda" ).toggle( 'drop', {}, 500 );
+		};
+
+		function ocultaPanelBusqueda (){
+			$( "#panelbusqueda" ).hide( 'fade', {}, 500 );
+		};
+
+
+		function getDate( element ) {
+			var date;
+			try {
+				date = $.datepicker.parseDate( dateFormat, element.value);
+			} catch( error ) {
+				date = null;
+			}
+
+			return date;
+		}
 		
-		
-		//Función que elimina todos los elementos dibujados en pantalla
-		function borraPantalla(){
+		function lanzaPeticionTime(){
+			desde = $("#from").val().split("/").join("")
+			hasta = $("#to").val().split("/").join("")
+			if((desde !="" )&&(hasta != ""))
+			{
+				peticion_http = new XMLHttpRequest();
+				peticion_http.open('GET', 'http://10.13.86.11:3000/time/'+desde+'/'+hasta, true);
+				peticion_http.send(null);
+			}
+		}	
+
+
+		//- function array2String(satelites){
+		//- 	return "(\'"+satelites.join().replace(/,/g,"\',\'")+"\')";
+		//- };
+
+		//- $( "document" ).on( "click", function() {
+		//- 	  $( "#popup" ).hide( "fade", {}, 500);
+		//- });
+
+
+		//- limpiaFiltros = function(){
+		//- 	$("#from").val("");
+		//- 	$("#to").val("");
+
+		//- 	var ahora = new Date();
+		//- 	var hasta = '' + ahora.getFullYear() + (ahora.getMonth() + 1) + ahora.getDate();
+		//- 	var desde='20050101';
+		//- 	peticion_http = new XMLHttpRequest();
+		//- 	peticion_http.open('GET', 'http://localhost:3000/time/'+desde+'/'+hasta, true);
+		//- 	peticion_http.send(null);
+
+		//- 	$("#xmin").val("");
+		//- 	$("#ymin").val("");
+		//- 	$("#xmax").val("");
+		//- 	$("#ymax").val("");
+		//- 	$('input').prop('checked', false);
+		//- 	satelites=[];
+		//- };
+
+
+
+		//Función que elimina los resultados obtenidos
+		borraPantalla = function(){
 			capaBbox.setSource(new ol.source.Vector());//elimina la fuente de la capa 'capaBbox'
+			capaResultados.setSource(new ol.source.Vector());//elimina la fuente de la capa 'capaBbox'
+			capaHuellasBusqueda.setSource(new ol.source.Vector());//elimina la fuente de la capa 'capaBbox'
+
 			//- arrayFeatures = [];
 			//- entidadLayerBbox=[];
 			extension = null;
-			var numCapas = map.getLayers().getArray().length;  //obtiene el numero total de capas
+			//- var numCapas = map.getLayers().getArray().length;  //obtiene el numero total de capas
 			
-			
+			//- map.getLayers().getArray().splice(3,1);			
 
-			for(var i=numCapas; i > 1 ; i--){
-				map.getLayers().getArray().splice(i,1);
-			}
-		if(bboxGlobal.length!=0){
-			capaBbox.getSource().addFeature(new ol.Feature({geometry: bboxGlobal}));
+			//- for(var i=numCapas; i > 3 ; i--){
+			//- 	map.getLayers().getArray().splice(i,1); //elimina un elemento del array de capas desde la posicion 'i', así hasta dejar únicamente los elementos 0 y 1 (capa base y ...)
+			//- }
+			if(bboxGlobal.length!=0){
+				capaBbox.getSource().addFeature(new ol.Feature({geometry: bboxGlobal}));
+			};
+
+			ocultaPanelResultados();
+			$('#listaderesultados').empty();  //vacía los elementos hijos de '#listaderesultados'
+
+			//Borra las imagenes seleccionadas
+			selectedFeatures.clear();
+
+
+
+			//- borraFiltros
+			//- $("#from").val("");
+			//- $("#to").val("");
+
+			//- var ahora = new Date();
+			//- var hasta = '' + ahora.getFullYear() + (ahora.getMonth() + 1) + ahora.getDate();
+			//- var desde='20050101';
+			//- peticion_http = new XMLHttpRequest();
+			//- peticion_http.open('GET', 'http://localhost:3000/time/'+desde+'/'+hasta, true);
+			//- peticion_http.send(null);
+
+			//- $("#xmin").val("");
+			//- $("#ymin").val("");
+			//- $("#xmax").val("");
+			//- $("#ymax").val("");
+			//- $('input').prop('checked', false);
+			//- satelites=[];
+
 		};
 
-		ocultaPanelResultados();
-		
 
-		}
-
-
-		function borraBox(){
+		borraBox = function (){
 			capaBbox.setSource(new ol.source.Vector());//elimina la fuente de la capa 'capaBbox'
 			//- arrayFeatures = [];
 			//- entidadLayerBbox=[];
 			extension = [];
 			bboxGlobal=[];
 
-
+			$listaderesultados=[];
+			listaderesultados=[];
+			myItems=[];
 			//- $("#panelresultados").attr('style','display: none;');
-
-		}
-		
-		// ejecuta el efecto 'slide'
-		function conmutaPanelBusqueda() {
-			// ejeutar el efecto
-			$( "#panelbusqueda" ).toggle( 'drop', {}, 500 );
 		};
+
 		// ejecuta el efecto 'slide'
-		function muestraPanelResultados() {
+		muestraPanelResultados = function () {
 			// ejeutar el efecto
 			//- if($("#panelresultados").attr('style')=='display:none;'){
 			$( "#panelresultados" ).show( 'drop', {}, 500 );
+			$( "#show-list-button" ).hide( 'fade', {}, 500 );
 		};
-	
-		function ocultaPanelResultados() {
+		
+		ocultaPanelResultados = function () {
 			// ejeutar el efecto
 			//- if($("#panelresultados").attr('style')=='display:none;'){
 			$( "#panelresultados" ).hide( 'drop', {}, 500 );
 		};
 
-		// establece el efecto a partir del valor seleccionado del menu
-		$( "#botonmenu" ).click(function() {
-		
-			// ejeutar el efecto
-			conmutaPanelBusqueda();
-			//- $("#botonbusqueda").attr("style","display:block");
-		});
-		
-		//Lanza la peticion de imagenes
-		$( "#botonbusqueda" ).click(function() {
+		cierraPanel = function(){
+			ocultaPanelResultados();
+			//muestra el botón para volver a mostrar los resultados
+			$( "#show-list-button" ).show( 'fade', {}, 500 );
+
+		}
+
+
+
+
+
+		var buscar = function() {
+			selectedFeatures.clear();
 			borraPantalla();
+			ocultaPanelBusqueda();
 
 			if(bboxGlobal.length!=0)
 			{
@@ -313,55 +602,94 @@ block content
 				
 				
 				//Tiempo de espera de 2 segundos para darle tiempo a que retorne los resultados de la búsqueda
-				setTimeout(function(){ 
-						listadoResultados = map.getLayers().getArray()[2].getSource().getFeatures();
+				setTimeout(function(){ 		//- ¡¡¡Esto hay que mirarlo y cambiar por un callback!!!
+						listadoResultados = map.getLayers().getArray()[1].getSource().getFeatures();
+						
+						numResultados = listadoResultados.length;
+
+						
 						
 						muestraPanelResultados();
 
 						var myItems = [], $listaderesultados = $('#listaderesultados');
 						 
-						for (var i=0; i<listadoResultados.length; i++) {
-						    myItems.push("<a href='#' class='list-group-item'><h4 class='list-group-item-heading'>"+listadoResultados[i].get('fileidentifier')+"</h4><p class='list-group-item-text'></p><p class='list-group-item-text'><em>URL de descarga:</em> "+listadoResultados[i].get('pathtofile')+" ; <em>Fecha de captura:</em> "+listadoResultados[i].get('fecha_captura')+"</p></a>");
-						}
+						//- for (var i=0; i<numResultados; i++) {
+						//- 	myItems.push("<div onclick='seleccionaImagenResultado(this)' id='itemResultado' href='#' class='list-group-item item' onmouseenter='hoverIn(this)' onmouseleave='hoverOut(this)' ><h5 id='fileidentifier' class='list-group-item-heading'><strong>"+listadoResultados[i].get('fileidentifier')+"</strong></h5><p class='list-group-item-text'></p><p class='list-group-item-text'><em>URL de descarga:</em> "+listadoResultados[i].get('pathtopreview')+" ; <em>Fecha de captura:</em> "+listadoResultados[i].get('fecha_captura')+"</p><div id='botones-resultados' class='row'><input id='selectorImagen' type='checkbox' class='glyphicon glyphicon-unchecked col-md-1'></div></div>");
+						//- 	//- <span id='zoomImagen' class='glyphicon glyphicon-screenshot col-md-1 col-md-offset-0'></span>
+						//- }
 						 
-						$listaderesultados.append(myItems.join(''));		
-						$("#numresultados").text("Listado de "+listadoResultados.length+ " resultados");		
+						for (var i=0; i<numResultados; i++) {
+							myItems.push("<div onclick='seleccionaImagenResultado(this)' id='itemResultado' href='#' class='list-group-item item' onmouseenter='hoverIn(this)' onmouseleave='hoverOut(this)'><div class='row'><div class='col-md-12'><div class='item-title'><h5 id='fileidentifier' class='list-group-item-heading'><strong>"+listadoResultados[i].get('fileidentifier')+"</strong></h5></div><div class='row listrow'><div class='col-md-2' id='quicklook'><img src='" + listadoResultados[i].get('pathtopreview')+'_thumbnail.jpeg' + "'></img></div><div id='propiedades' class='col-md-10'><p class='list-group-item-text'><em>URL de descarga:</em><a href='"+listadoResultados[i].get('pathtodownload')+"' target='_blank'> " + listadoResultados[i].get('pathtodownload')+ ";</a><br><em>Misión:</em> "+ "Aquí la misión" +"; <em>Fecha de captura:</em> "+listadoResultados[i].get('fecha_captura')+"</p></div></div></div></div></div>");
+						}
 
 
+						$listaderesultados.append(myItems.join(''));
+						$('#panelresultados').attr('style','display: block;')
+						$("#listaderesultados").height( obtieneAlturaVentana() -200 - obtieneAlturaPanelBusqueda());
+						$("#numresultados").text("Listado de "+numResultados+ " resultados");
+					}, 1000);
 
-						
-					}, 2000);				
 			}else{
 				//- $("#popup").attr("style","position:absolute;left:50%;top:20%;display:block;display:block");
 				$( "#popup" ).show( 'drop', {}, 500, callback );
-				    function callback() {
-				      setTimeout(function() {
-				        $( "#popup:visible" ).attr( "style", "display:none").fadeOut();
-				      }, 2000 );
-				    };				
+					function callback() {
+					  setTimeout(function() {	//- ¡¡¡Esto hay que mirarlo y cambiar por un callback!!!
+						$( "#popup:visible" ).attr( "style", "display:none").fadeOut();
+					  }, 1000 );
+					};				
 
 				//- setTimeout(function(){$("#popup:visible").removeAttr( "style" ).fadeOut();},2000);
 				//- alert("Crea un BBOX");
-			}
+			};	
 
-
-			
 
 			//- $("#botonbusqueda").attr("style","visibility:visible");
 
 			//- alert('hacer la peticion a la BD mediante http');
-		});		
-		
 
-		// elemento JqueryUI que muestra un calendario
-		//- $( ".datepicker" ).datepicker({
-		//- 	onClose: function( selectedDate ) {
-		//- 		peticion_http = new XMLHttpRequest();
-		//- 		peticion_http.open('GET', 'http://localhost:3000/time/20131001/20140101', true);
-		//- 		peticion_http.send(null);
-		//- 	}
-		//- });
+			// captra el fileidentifier del listado de resultados
+
+		}
+
+		//Lanza la peticion de imagenes
+		$( "#botonbusqueda" ).click(function(){
+				buscar();
+			});		
+
 		
+		var obtieneAlturaVentana = function(){
+			var tamanoVentana = $('#map').height();	
+			return tamanoVentana;
+		}
+
+		var obtieneAlturaPanelBusqueda = function() {
+			var alturapanelbusqueda = $('#panelbusqueda').height();
+			if ($('#panelbusqueda').attr('style') == "display: none;") {
+				return 0;
+			} else {
+				return alturapanelbusqueda;
+			}
+		}
+
+
+
+		$( "#botonmenu" ).click(function() {
+			if($('#panelresultados').attr('style')=="display: block;"){
+				ocultaPanelResultados();
+
+			}else if($('#panelresultados').attr('style')=="display: none;" &&$('#panelbusqueda').attr('style') == undefined){
+				$( "#show-list-button" ).show( 'fade', {}, 500 );
+			}else if($('#panelresultados').attr('style')=="display: none;" &&$('#panelbusqueda').attr('style') == "display: none;"){
+				$( "#show-list-button" ).hide( 'fade', {}, 500 );
+			}else if($('#panelresultados').attr('style')=="display: none;" &&$('#panelbusqueda').attr('style') == "display: block;"){
+				$( "#show-list-button" ).show( 'fade', {}, 500 );
+			}
+			// ejeutar el efecto
+			conmutaPanelBusqueda();
+			//- $("#botonbusqueda").attr("style","display:block");
+		});
+
+
 		// elemento JqueryUI de acordeon
 		$( "#accordion" )
 			.accordion({
@@ -404,86 +732,7 @@ block content
 			});		
 
 
-		function getDate( element ) {
-			var date;
-			try {
-				date = $.datepicker.parseDate( dateFormat, element.value);
-			} catch( error ) {
-				date = null;
-			}
 
-			return date;
-		}
-		
-		function lanzaPeticionTime(){
-			var desde = $("#from").val().split("/").join("")
-			var hasta = $("#to").val().split("/").join("")
-			if((desde !="" )&&(hasta != ""))
-			{
-				peticion_http = new XMLHttpRequest();
-				peticion_http.open('GET', 'http://localhost:3000/time/'+desde+'/'+hasta, true);
-				peticion_http.send(null);
-			}
-		}
-
-		//Funcion para añadir una capa con las huellas de las imagenes que solapan con el BBOX dibujados
-		function lanzaPeticionBusqueda(extension) {
-			var layer = [];
-			var peticionGet = "";
-			listadoResultados = [];
-
-			if(satelites!=""){
-				var stringSatelites = array2String(satelites);
-				//peticiones GET para establecer los ids de los satelites
-				peticion_http = new XMLHttpRequest();
-				peticion_http.open('GET', 'http://localhost:3000/satellites/'+ stringSatelites, true);
-				peticion_http.send(null);
-
-
-				peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857"+"?sats="+stringSatelites;
-			}else{
-				peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857";
-			};
-			
-			//- peticionGet = 'pg/' +extension[0].toFixed(6)+'/'+extension[1].toFixed(6)+'/'+extension[2].toFixed(6)+'/'+extension[3].toFixed(6)+'/'+"3857";
-			layer = lanzaPeticionBusqueda.cache[extension];
-
-				layer = new ol.layer.Vector({
-					source: new ol.source.Vector({
-						url: peticionGet,//aquí hace la petición GET a 'index.js' que, a su vez, realiza la peticion a la BD.
-						format: new ol.format.GeoJSON()
-					}),
-					name: extension,
-					visible: true
-				});
-				lanzaPeticionBusqueda.cache[extension] = layer;
-				setTimeout(function(){ 
-					map.addLayer(layer) ;
-				}, 1000);
-				//- map.addLayer(layer);
-				map.getLayers().getArray()[1].setZIndex(1); //Pone por encima la capa del BBOX dibujado
-				
-		}
-		lanzaPeticionBusqueda.cache = {};
-
-		function limpiaFiltros(){
-			$("#from").val("");
-			$("#to").val("");
-
-			var ahora = new Date();
-			var hasta = '' + ahora.getFullYear() + (ahora.getMonth() + 1) + ahora.getDate();
-			var desde='20050101';
-			peticion_http = new XMLHttpRequest();
-			peticion_http.open('GET', 'http://localhost:3000/time/'+desde+'/'+hasta, true);
-			peticion_http.send(null);
-
-			$("#xmin").val("");
-			$("#ymin").val("");
-			$("#xmax").val("");
-			$("#ymax").val("");
-			$('input').prop('checked', false);
-			satelites=[];
-		}
 
 		$("#dibujabbox").click(function() {
 			//dibuja un bbox con la geometría dada
@@ -520,16 +769,310 @@ block content
 				satelites.splice(satelites.indexOf($(this).prop('id')),1)
 				//- alert("El checkbox con valor " + $(this).prop('id') + " ha sido deseleccionado");
 			}
+
+			//- buscar(); //Lanza la petición de búsqueda de nuevo al haber variado la selección de satélites.
 		});
 		//- $( "input" ).change(function() {
 		//- 	satelites.pop($(this).attr('id'));
 
 		//- });
 
-		function array2String(satelites){
-			return "(\'"+satelites.join().replace(/,/g,"\',\'")+"\')";
+
+		//Interaccion para seleccionar huella en el mapa
+		selectResults = new ol.interaction.Select({
+			style: selectedResultStyle,
+			layers: function (layer) {
+				return layer.get('id') == 'resultados';
+			}
+		});
+		//- map.addInteraction(selectResults);
+		map.getInteractions().extend([selectResults]);
+
+		//Variable que almacena las entidades seleccionadas con la interaccion 'Select'
+		selectedFeatures = selectResults.getFeatures();
+
+
+		//Probar con forEachFeatureAtPixel
+		//- http://gis.stackexchange.com/questions/126936/open-layers-3-foreachfeatureatpixel-specify-layer
+		//- https://openlayersbook.github.io/ch08-interacting-with-your-map/example-03.html
+		
+
+		//- // a normal select interaction to handle click
+		//del ejemplo http://openlayers.org/en/latest/examples/translate-features.html
+		//- var selectBbox = new ol.interaction.Select({
+		//- 	layers: function (layer) {
+		//- 		return layer.get('id') == 'bbox';
+		//- 	}
+		//- });
+		//- map.addInteraction(selectBbox);
+
+		//- var translate = new ol.interaction.Translate({
+		//- 	features: selectBbox.getFeatures()
+		//- });
+
+		//- map.addInteraction(translate);
+
+
+		//Muestra información de cada imagen
+		var displayFeatureInfo = function(pixel) {
+			var features = [];
+			var capas = [];
+			map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+			  features.push(feature);
+			  capas.push(layer);
+			});
+			//- var container = document.getElementById('information');
+			if (features.length > 0) {
+			  var info = [];
+			  for (var i = 0, ii = features.length; i < ii; ++i) {
+				info.push(features[i].get('fileidentifier') + ' => capa: ' + capas[i].get('id'));
+			  }
+			  //- container.innerHTML = info.join(', ') || '(unknown)';
+			  console.log(info);
+			} else {
+				  //- container.innerHTML = '&nbsp;';
+				  console.log('no hay nada que mostrar');
+				}
+		};
+
+		map.on('click', function(evt) {
+			var pixel = evt.pixel;
+			displayFeatureInfo(pixel);
+		});		
+		
+
+		//variable que almacena el estilo actual de la entidades
+		estiloActualFeature={};
+
+		// funcion que captura el fileidentifier de cada elemento de la lista de resultados
+		hoverIn = function(x){
+
+			var identificador = $('#fileidentifier',x).text();
+			//- map.getLayers().getArray()[3].getSource().getFeatures()[0].get('fileidentifier')
+			$.each(map.getLayers().getArray()[1].getSource().getFeatures(), function(i,l){
+				if(identificador==l.get('fileidentifier')){
+					//Hay que capturar el estilo anterior, para restituir al salir el raton
+					estiloActualFeature = l.getStyle();
+					//- selectedFeatures.push(l);
+					l.setStyle(highlightResultStyle);
+				};
+				//- l.setStyle(highlightResultStyle);
+
+			})
+
+			//- console.log(identificador);
+
+		};
+		
+
+
+		hoverOut = function(x){
+			//- selectedFeatures.clear();
+			var identificador = $('#fileidentifier',x).text();
+			//- map.getLayers().getArray()[3].getSource().getFeatures()[0].get('fileidentifier')
+			$.each(map.getLayers().getArray()[1].getSource().getFeatures(), function(i,l){
+				if(identificador==l.get('fileidentifier')){
+					//- selectedFeatures.push(l);
+					//- l.setStyle(resultsStyle);
+					l.setStyle(estiloActualFeature);
+				};
+				//- l.setStyle(highlightResultStyle);
+
+			})			
 		}
 
-		$( "document" ).on( "click", function() {
-		      $( "#popup" ).hide( "fade", {}, 500);
+		
+
+		seleccionaImagenResultado = function(x){
+			//- selectedFeatures.clear();
+			//- var identificador = $('#fileidentifier',x).text();
+
+			//cambiar el estilo para el elemento que esta siendo seleccionado cuando pasamos el raton por la lista de resultados
+			//- alert('Has seleccionado la imagen: ' + identificador); 
+
+
+			var identificador = $('#fileidentifier',x).text();
+
+			console.log(identificador);
+			
+			//- map.getLayers().getArray()[3].getSource().getFeatures()[0].get('fileidentifier')
+
+
+			//- if($('#itemResultado',x).)
+			//- $(x,'a#itemResultado').addClass('selected');
+			if($(x).hasClass('selected')){
+				
+				//- console.log(identificador);
+				$(x).removeClass('selected');
+				$('#selectorImagen',x).prop('checked',false);
+				eliminaSeleccion(identificador);
+				
+			}else{
+				$(x).addClass('selected');
+				$('#selectorImagen',x).prop('checked',true);
+				//para cada una de las entidades de la capa de resultados comara los 'fileidentifier' con el resultado de la lista y ´lo añade al array de resultados seleccionados 'selectedFeatures' para su correcta represetanción en el mapa
+				$.each(map.getLayers().getArray()[1].getSource().getFeatures(), function(i,l){
+					if(identificador==l.get('fileidentifier')){
+						selectedFeatures.push(l);
+					};
+					//- l.setStyle(highlightResultStyle);
+
+				});				
+			}
+		};
+
+		eliminaSeleccion = function(id){
+			var indiceBorra = null;
+			var longitud = selectedFeatures.getLength();
+			for(i=0;i<longitud-1;i++){
+				if(selectedFeatures.item(i).get('fileidentifier')==id) {
+					indiceBorra = i;		
+				}
+			};
+			console.log('Borra la posicion: ' + indiceBorra + ' con el id: ' +id);
+			//Borra elemento del array 'selectedFeatures' en la posicion 'indiceBorra'
+
+			selectedFeatures.removeAt(indiceBorra);
+			//- console.log(selectedFeatures.getArray());
+		}
+
+		map.getView().on('change:resolution',function(){
+			$('#badgeZoomLevelText').html(map.getView().getZoom());
 		});
+
+
+		//Implementar cuando selecciono una huella en el mapa, que se seleccione el elemento correspondiente de la lista de resultados.--> 'highlightResultStyle' He econtrado este ejemplo 
+		//- $('a#itemResultado').click(function(){
+		//- 	$('a#itemResultado').removeClass('selected');
+		//- 	$(this).addClass('selected');
+		//- });
+
+		//- });
+
+
+
+		//JSON.stringify(obtieneGeoJSON(bboxGlobal))
+		obtieneGeoJSON = function(extension){
+			var bbox = new ol.geom.Polygon.fromExtent(extension.getExtent());
+			//- (new ol.format.GeoJSON()).writeFeatures([new ol.Feature({geometry: bbox.transform('EPSG:3857','EPSG:4326')})])
+			bbox.transform('EPSG:3857','EPSG:4326');
+			var geojson  = new ol.format.GeoJSON();
+			var bboxObjeto = new ol.Feature({geometry: bbox});
+			var bbox_GeoJSON = geojson.writeFeaturesObject([bboxObjeto]);
+			//- console.log(bbox_GeoJSON);
+			return bbox_GeoJSON;	
+		}
+		
+
+
+		//Capa que va a mostrar las huellas resultado de la busqueda de sentinelsat
+		var capaHuellasBusqueda = new ol.layer.Vector({
+			id:'huellas',
+			source: new ol.source.Vector(),
+			style: new ol.style.Style({
+			          stroke: new ol.style.Stroke({
+			            color: 'yellow',
+			            width: 1
+			          }),
+			          fill: new ol.style.Fill({
+			            color: 'rgba(255, 255, 0, 0.1)'
+			          })
+			        }) 
+		});
+		
+		map.addLayer(capaHuellasBusqueda);
+
+		//- bbox para busqueda
+		//- bbox = {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-4.2626953125,39.01918369029136],[-4.2626953125,39.59722324495564],[-3.6254882812500018,39.59722324495564],[-3.6254882812500018,39.01918369029136],[-4.2626953125,39.01918369029136]]]},"properties":null}]};
+
+		//- huellasGeoJSON = {"features": [{"geometry": {"coordinates": [[[-5.33363283056225, 39.72680595308774], [-4.052795628096395, 39.74549354563108], [-4.038104885378581, 38.75625435897602], [-5.301097327330996, 38.73820958831532], [-5.33363283056225, 39.72680595308774]]], "type": "Polygon"}, "id": 0, "properties": {"baresoilpercentage": 73.642853, "beginposition": "2017-06-21T11:06:51.026000Z", "cloudcoverpercentage": 0.053766, "endposition": "2017-06-21T11:06:51.026000Z", "filename": "S2A_MSIL2A_20170621T110651_N0205_R137_T30SUJ_20170621T111222.SAFE", "format": "SAFE", "highprobacloudspercentage": 0.012704, "id": "6e878f9f-9b3e-40c9-b685-5b443495a483", "identifier": "S2A_MSIL2A_20170621T110651_N0205_R137_T30SUJ_20170621T111222", "ingestiondate": "2017-06-24T09:10:42.529000Z", "instrumentname": "Multi-Spectral Instrument", "instrumentshortname": "MSI", "link": "https://scihub.copernicus.eu/dhus/odata/v1/Products('6e878f9f-9b3e-40c9-b685-5b443495a483')/$value", "link_alternative": "https://scihub.copernicus.eu/dhus/odata/v1/Products('6e878f9f-9b3e-40c9-b685-5b443495a483')/", "link_icon": "https://scihub.copernicus.eu/dhus/odata/v1/Products('6e878f9f-9b3e-40c9-b685-5b443495a483')/Products('Quicklook')/$value", "lowprobacloudspercentage": 0.331356, "mediumprobacloudspercentage": 0.03428, "orbitdirection": "DESCENDING", "orbitnumber": 10430, "platformidentifier": "2015-000A", "platformname": "Sentinel-2", "platformserialidentifier": "Sentinel-2A", "processingbaseline": "02.05", "processinglevel": "Level-2Ap", "producttype": "S2MSI2Ap", "relativeorbitnumber": 137, "s2datatakeid": "GS2A_20170621T110651_010430_N02.05", "sensoroperationalmode": "INS-NOBS", "size": "1.15 GB", "snowicepercentage": 0.0, "summary": "Date: 2017-06-21T11:06:51.026Z, Instrument: MSI, Mode: , Satellite: Sentinel-2, Size: 1.15 GB", "title": "S2A_MSIL2A_20170621T110651_N0205_R137_T30SUJ_20170621T111222", "uuid": "6e878f9f-9b3e-40c9-b685-5b443495a483", "vegetationpercentage": 24.833059, "waterpercentage": 0.388977}, "type": "Feature"}, {"geometry": {"coordinates": [[[-3.600517736117329, 39.74696923978506], [-3.625699387578991, 39.67600672318878], [-3.677383245224878, 39.52977749088135], [-3.729020517385802, 39.38350118836557], [-3.780047388314384, 39.23707173604341], [-3.830774212122789, 39.09052444402168], [-3.881736354702846, 38.94397866926533], [-3.932980299973496, 38.79742268471388], [-3.947146074790907, 38.756101359988115], [-4.151332482125373, 38.755193805393134], [-4.167624727530881, 39.74439520181332], [-3.600517736117329, 39.74696923978506]]], "type": "Polygon"}, "id": 1, "properties": {"baresoilpercentage": 86.251923, "beginposition": "2017-06-21T11:06:51.026000Z", "cloudcoverpercentage": 0.279764, "endposition": "2017-06-21T11:06:51.026000Z", "filename": "S2A_MSIL2A_20170621T110651_N0205_R137_T30SVJ_20170621T111222.SAFE", "format": "SAFE", "highprobacloudspercentage": 0.145837, "id": "75a95710-f20b-4584-bf88-c1a514466d90", "identifier": "S2A_MSIL2A_20170621T110651_N0205_R137_T30SVJ_20170621T111222", "ingestiondate": "2017-06-23T20:40:35.722000Z", "instrumentname": "Multi-Spectral Instrument", "instrumentshortname": "MSI", "link": "https://scihub.copernicus.eu/dhus/odata/v1/Products('75a95710-f20b-4584-bf88-c1a514466d90')/$value", "link_alternative": "https://scihub.copernicus.eu/dhus/odata/v1/Products('75a95710-f20b-4584-bf88-c1a514466d90')/", "link_icon": "https://scihub.copernicus.eu/dhus/odata/v1/Products('75a95710-f20b-4584-bf88-c1a514466d90')/Products('Quicklook')/$value", "lowprobacloudspercentage": 0.324044, "mediumprobacloudspercentage": 0.110322, "orbitdirection": "DESCENDING", "orbitnumber": 10430, "platformidentifier": "2015-000A", "platformname": "Sentinel-2", "platformserialidentifier": "Sentinel-2A", "processingbaseline": "02.05", "processinglevel": "Level-2Ap", "producttype": "S2MSI2Ap", "relativeorbitnumber": 137, "s2datatakeid": "GS2A_20170621T110651_010430_N02.05", "sensoroperationalmode": "INS-NOBS", "size": "379.55 MB", "snowicepercentage": 0.0, "summary": "Date: 2017-06-21T11:06:51.026Z, Instrument: MSI, Mode: , Satellite: Sentinel-2, Size: 379.55 MB", "title": "S2A_MSIL2A_20170621T110651_N0205_R137_T30SVJ_20170621T111222", "uuid": "75a95710-f20b-4584-bf88-c1a514466d90", "vegetationpercentage": 12.735614, "waterpercentage": 7.6e-05}, "type": "Feature"}], "type": "FeatureCollection",'crs': {'type': 'name','properties': {'name': 'EPSG:4326'}}};
+
+		dibujaHuellas = function(huellasGeoJSON){
+
+
+			huellasFeatures = (new ol.format.GeoJSON()).readFeatures(huellasGeoJSON,{dataProjection:'EPSG:4326',featureProjection:'EPSG:3857'});
+
+			for (var i=0;i<huellasFeatures.length;i++){
+				capaHuellasBusqueda.getSource().addFeature(huellasFeatures[i]);
+			};
+
+		}
+
+
+
+		busquedaSentinel = function () {
+			borraPantalla();
+			ocultaPanelBusqueda();
+
+			// Obtiene un objeto JSON con las coordenadas del BBOX de busqueda en proyección 4326 (geográficas) que es lo que admite sentinelsat
+			geojson_bbox = obtieneGeoJSON(bboxGlobal);
+
+			//- console.log(geojson_bbox);
+
+
+
+			
+
+			//- var layer = [];
+			//- var peticionGet = "";
+			//- stringSatelites = [];
+			//- var format = new ol.format.GeoJSON();
+
+			//- var vectorHuellas = new ol.source.Vector;  //inicializa la variable para que no aparezca un error cuando no hay resultados.
+			//listadoResultados = [];
+
+			//Comprueba que haya Fechas
+			if(typeof(desde)=="undefined"){
+				desde = '20170101';
+				$('#from').val(desde.substring(0,4) + "/" + desde.substring(4,6) + "/" + desde.substring(6,8));
+			}if(typeof(hasta) =="undefined"){
+				var ahora = new Date();
+				var hasta = '' + ahora.getFullYear() + (ahora.getMonth() + 1) + ahora.getDate();
+				$('#to').val(ahora.getFullYear() + "/" + (ahora.getMonth() + 1) + "/" + ahora.getDate());
+			}
+
+			//- var stringSatelites = array2String(satelites);
+			$.getJSON("http://10.13.86.11:3000/sentinelsat/" + JSON.stringify(obtieneGeoJSON(bboxGlobal))+"/"+desde+"/"+hasta, function(data) {
+
+
+			//Un ejemplo de petición al servidor zerorpc python en la máquina 10.13.86.182 sería
+			//http://10.13.86.11:3000/sentinelsat/%7B%22type%22:%22FeatureCollection%22,%22features%22:[%7B%22type%22:%22Feature%22,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[-4.680175781249997,39.51251701659638],[-4.680175781249997,39.98553841480975],[-3.8452148437499996,39.98553841480975],[-3.8452148437499996,39.51251701659638],[-4.680175781249997,39.51251701659638]]]%7D,%22properties%22:null%7D]%7D/20160601/20160630/Sentinel-2
+
+			
+
+				console.log("peticion realizada correctamente");
+
+				$.each(data, function(i,item){
+					console.log(item);
+					//- stringSatelites.push(item.id_product);
+
+				});	
+
+				// console.log(data);
+
+				//- HAY QUE PROBAR HACER UNA PETICIÓN POST
+
+				dibujaHuellas(data);
+				console.log(data);
+
+				//- vectorHuellas = new ol.source.Vector({
+				//-   //- strategy: ol.loadingstrategy.bbox,
+				//-   loader: function(extent, resolution, projection) {
+				//- 	$.ajax(peticionGet).then(function(response) {
+				//- 		var features = format.readFeatures(response,
+				//- 		  {featureProjection: 'EPSG:3857'});
+				//- 		vectorHuellas.addFeatures(features);
+				//- 	});
+				//-   }
+				//- });
+
+				
+				//- capaHuellasBusqueda.setSource(vectorHuellas);
+			});
+			
+		};
+		lanzaPeticionBusqueda.cache = {};
+
+		$( "#botonbusquedasentinel" ).click(function(){
+			busquedaSentinel();
+		});	
